@@ -1,145 +1,96 @@
+#include <iostream>
+#include <vector>
+#include <queue>
+#include <stack>
+#include <omp.h>
 
-#include<iostream>
-#include<stdlib.h>
-#include<queue>
 using namespace std;
 
+// Data structure to represent a graph using adjacency list representation
+class Graph {
+    int V; // Number of vertices
 
-class node
-{
-   public:
-    
-    node *left, *right;
-    int data;
+    // Adjacency list representation of the graph
+    vector<vector<int>> adj;
 
-};    
+public:
+    Graph(int V) : V(V) {
+        adj.resize(V);
+    }
 
-class Breadthfs
-{
- 
- public:
- 
- node *insert(node *, int);
- void bfs(node *);
- 
+    // Function to add an edge to the graph
+    void addEdge(int v, int w) {
+        adj[v].push_back(w);
+    }
+
+    // Breadth-First Search algorithm
+    void BFS(int start) {
+        vector<bool> visited(V, false);
+        queue<int> q;
+
+        visited[start] = true;
+        q.push(start);
+
+        while (!q.empty()) {
+            int u = q.front();
+            q.pop();
+            cout << u << " "; // Print the current vertex
+
+            // Enqueue all adjacent vertices of dequeued vertex u
+            // and mark them visited
+            #pragma omp parallel for // Parallelize the loop
+            for (int v : adj[u]) {
+                if (!visited[v]) {
+                    visited[v] = true;
+                    q.push(v);
+                }
+            }
+        }
+    }
+
+    // Depth-First Search algorithm
+    void DFS(int start) {
+        vector<bool> visited(V, false);
+        stack<int> s;
+
+        s.push(start);
+
+        while (!s.empty()) {
+            int u = s.top();
+            s.pop();
+
+            if (!visited[u]) {
+                cout << u << " "; // Print the current vertex
+                visited[u] = true;
+
+                // Traverse all adjacent vertices of u
+                #pragma omp parallel for // Parallelize the loop
+                for (int v : adj[u]) {
+                    if (!visited[v]) {
+                        s.push(v);
+                    }
+                }
+            }
+        }
+    }
 };
 
+int main() {
+    Graph g(5); // Example graph with 5 vertices
 
-node *insert(node *root, int data)
-// inserts a node in tree
-{
+    // Add edges to the graph
+    g.addEdge(0, 1);
+    g.addEdge(0, 2);
+    g.addEdge(1, 3);
+    g.addEdge(2, 4);
 
-    if(!root)
-    {
-   	 
-   	 root=new node;
-   	 root->left=NULL;
-   	 root->right=NULL;
-   	 root->data=data;
-   	 return root;
-    }
+    cout << "BFS Traversal: ";
+    g.BFS(0); // Start BFS from vertex 0
+    cout << endl;
 
-    queue<node *> q;
-    q.push(root);
-    
-    while(!q.empty())
-    {
+    cout << "DFS Traversal: ";
+    g.DFS(0); // Start DFS from vertex 0
+    cout << endl;
 
-   	 node *temp=q.front();
-   	 q.pop();
-    
-   	 if(temp->left==NULL)
-   	 {
-   		 
-   		 temp->left=new node;
-   		 temp->left->left=NULL;
-   		 temp->left->right=NULL;
-   		 temp->left->data=data;    
-   		 return root;
-   	 }
-   	 else
-   	 {
-
-   	 q.push(temp->left);
-
-   	 }
-
-   	 if(temp->right==NULL)
-   	 {
-   		 
-   		 temp->right=new node;
-   		 temp->right->left=NULL;
-   		 temp->right->right=NULL;
-   		 temp->right->data=data;    
-   		 return root;
-   	 }
-   	 else
-   	 {
-
-   	 q.push(temp->right);
-
-   	 }
-
-    }
-    
-}
-
-
-void bfs(node *head)
-{
-
-   	 queue<node*> q;
-   	 q.push(head);
-   	 
-   	 int qSize;
-   	 
-   	 while (!q.empty())
-   	 {
-   		 qSize = q.size();
-   		 #pragma omp parallel for
-            	//creates parallel threads
-   		 for (int i = 0; i < qSize; i++)
-   		 {
-   			 node* currNode;
-   			 #pragma omp critical
-   			 {
-   			   currNode = q.front();
-   			   q.pop();
-   			   cout<<"\t"<<currNode->data;
-   			   
-   			 }// prints parent node
-   			 #pragma omp critical
-   			 {
-   			 if(currNode->left)// push parent's left node in queue
-   				 q.push(currNode->left);
-   			 if(currNode->right)
-   				 q.push(currNode->right);
-   			 }// push parent's right node in queue   	 
-
-   		 }
-   	 }
-
-}
-
-int main(){
-
-    node *root=NULL;
-    int data;
-    char ans;
-    
-    do
-    {
-   	 cout<<"\n enter data=>";
-   	 cin>>data;
-   	 
-   	 root=insert(root,data);
-    
-   	 cout<<"do you want insert one more node?";
-   	 cin>>ans;
-    
-    }while(ans=='y'||ans=='Y');
-    
-    bfs(root);
-    
     return 0;
 }
