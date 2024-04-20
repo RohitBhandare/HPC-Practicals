@@ -6,6 +6,51 @@ This repository contains examples and explanations of different parallel computi
 
 OpenMP is an API for parallel programming in shared-memory systems, primarily used with C, C++, and Fortran. It provides a set of compiler directives, library routines, and environment variables that enable parallelism in loops, sections, and tasks.
 
+## Running the "Hello, World!" Example
+
+Here's a simple "Hello, World!" program using OpenMP in C++:
+
+```cpp
+#include <iostream>
+#include <omp.h>
+
+int main() {
+    // Enable OpenMP parallelism
+    #pragma omp parallel
+    {
+        // Get the total number of threads
+        int num_threads = omp_get_num_threads();
+        
+        // Get the thread ID
+        int thread_id = omp_get_thread_num();
+        
+        // Print "Hello, World!" with thread information
+        std::cout << "Hello, World! Thread ID: " << thread_id << " Total threads: " << num_threads << std::endl;
+    }
+    return 0;
+}
+```
+## You can compile and run this code with the following commands:
+
+```
+g++ -o hello_world hello_world.cpp -fopenmp
+./hello_world
+```
+
+## Output:
+```
+Hello, World! Thread ID: Hello, World! Thread ID: 8 Total threads: 12Hello, World! Thread ID: 11 Total threads: 12
+Hello, World! Thread ID: 1 Total threads: 12
+Hello, World! Thread ID: 2 Total threads: 12
+Hello, World! Thread ID: 9 Total threads: 12
+
+Hello, World! Thread ID: 5 Total threads: 12
+Hello, World! Thread ID: 7 Total threads: 12
+4 Total threads: 12
+Hello, World! Thread ID: 3 Total threads: Hello, World! Thread ID: 6 Total threads: 12Hello, World! Thread ID: 0 Total threads: 12
+12
+Hello, World! Thread ID: 10 Total threads: 12
+```
 ### Use Cases:
 - Parallelizing computationally intensive loops such as matrix multiplication, image processing, or numerical simulations.
 - Exploiting multicore CPUs for accelerating applications that can be parallelized.
